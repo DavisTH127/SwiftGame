@@ -5,11 +5,13 @@
 //  Created by Davis Hoang on 12/10/18.
 //  Copyright © 2018 Davis Hoang. All rights reserved.
 //
-
+import UIKit
 import SpriteKit
 import GameplayKit
+import CoreMotion
 
 class GameScene: SKScene,SKPhysicsContactDelegate {
+
     var player:SKSpriteNode?
     var enemy:SKSpriteNode?
     var item:SKSpriteNode?
@@ -18,71 +20,44 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     var timeSinceFire:TimeInterval = 0
     var lastTime:TimeInterval = 0
     var possibleAliens = ["enemy1", "enemy2", "enemy3", "enemy4"]
-    var score:Int = 0
-    let noCategory:UInt32 = 0
-    let laserCategory:UInt32 = 0b1
-    let playerCategory:UInt32 = 0b1 << 1
-    let enemyCategory:UInt32 = 0b1 << 2
-    let itemCategory:UInt32 = 0b1 << 3
+    var scoreLabel:SKLabelNode!
+    var score:Int = 0{
+        didSet{
+            scoreLabel.text = "Score:\(score)"
+        }
+    }
+    
+    var livesArray:[SKSpriteNode]!
+    
+    let alienCategory:UInt32 = 0b1 << 1
+    let photonCategory:UInt32 = 0b1 << 0
     
     var gameTimer:Timer!
     
     override func didMove(to view: SKView) {
+        
+        addLives()
+        
+        player = SKSpriteNode(imageNamed: "ship")
+        player?.position = CGPoint(x: 250, y: 500 )
+        self.addChild(player!)
+        
+        self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
         self.physicsWorld.contactDelegate = self
-        label = self.childNode(withName: "score") as? SKLabelNode
-        player = self.childNode(withName: "player") as? SKSpriteNode
-        player?.physicsBody?.categoryBitMask = playerCategory
-        player?.physicsBody?.collisionBitMask = noCategory
-        player?.physicsBody?.contactTestBitMask = enemyCategory | itemCategory
         
-        item = self.childNode(withName: "item") as? SKSpriteNode
-        item?.physicsBody?.categoryBitMask = itemCategory
-        item?.physicsBody?.collisionBitMask = noCategory
-        item?.physicsBody?.contactTestBitMask = playerCategory
+        scoreLabel = SKLabelNode(text: "Score: 0")
+        scoreLabel.position = CGPoint(x:-150, y:550)
+        scoreLabel.fontName = "AmericanTypewriter-Bold"
+        scoreLabel.fontSize = 76
+        scoreLabel.fontColor = UIColor.white
+        score = 0
         
-        enemy = self.childNode(withName: "enemy") as? SKSpriteNode
-        enemy?.physicsBody?.categoryBitMask = enemyCategory
-        enemy?.physicsBody?.collisionBitMask = noCategory
-        enemy?.physicsBody?.contactTestBitMask = playerCategory | laserCategory
+        self.addChild(scoreLabel)
         
         gameTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(addAlien), userInfo: nil, repeats: true)
 
     }
     
-    
-    func didBegin(_ contact: SKPhysicsContact) {
-        let cA:UInt32 = contact.bodyA.categoryBitMask
-        let cB:UInt32 = contact.bodyB.categoryBitMask
-        if cA == playerCategory || cB == playerCategory {
-            let otherNode:SKNode = (cA == playerCategory) ? contact.bodyB.node! : contact.bodyA.node!
-            playerDidCollide(with: otherNode)
-        }
-        else {
-            let explosion:SKEmitterNode = SKEmitterNode(fileNamed: "Explosion")!
-            explosion.position = contact.bodyA.node!.position
-            self.addChild(explosion)
-            contact.bodyA.node?.removeFromParent()
-            contact.bodyB.node?.removeFromParent()
-        }
-    }
-    
-    func playerDidCollide(with other:SKNode) {
-        if other.parent == nil {
-            return
-        }
-        let otherCategory = other.physicsBody?.categoryBitMask
-        if otherCategory == itemCategory{
-            let points:Int = other.userData?.value(forKey: "points") as! Int
-            score += points
-            label?.text = "Score: \(score)"
-            other.removeFromParent()
-            player?.removeFromParent()
-        }
-        if otherCategory == enemyCategory {
-            other.removeFromParent()
-            player?.removeFromParent()
-        }
-    }
     
     @objc func addAlien () {
         possibleAliens = GKRandomSource.sharedRandom().arrayByShufflingObjects(in: possibleAliens) as! [String]
@@ -92,30 +67,92 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         let randomAlienPosition = GKRandomDistribution(lowestValue: -100, highestValue: 500)
         let position = CGFloat(randomAlienPosition.nextInt())
         
-        alien.position = CGPoint(x: 0, y: self.frame.size.height)
+        alien.position = CGPoint(x: position, y: self.frame.size.height + alien.size.height)
         
         alien.physicsBody = SKPhysicsBody(rectangleOf: alien.size)
         alien.physicsBody?.isDynamic = true
         
-        alien.physicsBody?.categoryBitMask = itemCategory
-        alien.physicsBody?.contactTestBitMask = enemyCategory
-        alien.physicsBody?.collisionBitMask = playerCategory
+        alien.physicsBody?.categoryBitMask = alienCategory
+        alien.physicsBody?.contactTestBitMask = photonCategory
+        alien.physicsBody?.collisionBitMask = 0
         
         self.addChild(alien)
         
         let animationDuration:TimeInterval = 15
     
-        
         var actionArray = [SKAction]()
         
-        
         actionArray.append(SKAction.move(to: CGPoint(x: position - 250, y: -750), duration: animationDuration))
+        
+        
         actionArray.append(SKAction.removeFromParent())
         
         alien.run(SKAction.sequence(actionArray))
         
         
     }
+    
+    func addLives(){
+        
+    }
+    
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        fireLaser()
+    }
+    
+    func fireLaser(){
+        let lazer = SKSpriteNode(imageNamed: "laser")
+        lazer.position = (player?.position)!
+        lazer.position.y = (player?.zPosition)! - 400
+        lazer.physicsBody = SKPhysicsBody(circleOfRadius:lazer.size.width/2)
+        lazer.physicsBody?.isDynamic = true
+        
+        lazer.physicsBody?.categoryBitMask = photonCategory
+        lazer.physicsBody?.contactTestBitMask = alienCategory
+        lazer.physicsBody?.collisionBitMask = 0
+        lazer.physicsBody?.usesPreciseCollisionDetection = true
+        
+        self.addChild(lazer)
+        let animationDuration: TimeInterval = 1
+        var actionArray = [SKAction]()
+        
+        actionArray.append(SKAction.move(to: CGPoint(x:(player?.position.x)! , y: self.frame.size.height + 5), duration: animationDuration))
+        actionArray.append(SKAction.removeFromParent())
+        lazer.run(SKAction.sequence(actionArray))
+    }
+    
+    func didBegin(_ contact: SKPhysicsContact) {
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask{
+            firstBody = contact.bodyA
+            secondBody = contact.bodyB
+        }else{
+            firstBody = contact.bodyB
+            secondBody = contact.bodyA
+        }
+        
+        if (firstBody.categoryBitMask & photonCategory) != 0 && (secondBody.categoryBitMask & alienCategory) != 0 {
+            lazerCollide(lazer: firstBody.node as! SKSpriteNode, enemy: secondBody.node as! SKSpriteNode)
+        }
+    }
+    
+    func lazerCollide(lazer:SKSpriteNode, enemy: SKSpriteNode){
+        let explosions = SKEmitterNode(fileNamed: "Explosion")
+        explosions?.position = enemy.position
+        self.addChild(explosions!)
+        
+        lazer.removeFromParent()
+        enemy.removeFromParent()
+        
+        self.run(SKAction.wait(forDuration: 2)){
+            explosions?.removeFromParent()
+        }
+        
+        score += 10
+    }
+    
     
     func touchDown(atPoint pos : CGPoint) {
         player?.position = pos
@@ -132,13 +169,9 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
-    
+
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -146,40 +179,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-        checkLaser(currentTime - lastTime)
-        lastTime = currentTime
-    }
     
-    func checkLaser(_ frameRate:TimeInterval) {
-        // add time to timer
-        timeSinceFire += frameRate
-        
-        // return if it hasn't been enough time to fire laser
-        if timeSinceFire < fireRate {
-            return
-        }
-        
-        //spawn laser
-        spawnLaser()
-        
-        // reset timer
-        timeSinceFire = 0
     }
-    
-    func spawnLaser() {
-        // see if there's an existing laser
-        let scene:SKScene = SKScene(fileNamed: "Laser")!
-        let laser = scene.childNode(withName: "laser")
-        laser?.position = player!.position
-        laser?.move(toParent: self)
-        laser?.physicsBody?.categoryBitMask = laserCategory
-        laser?.physicsBody?.collisionBitMask = noCategory
-        laser?.physicsBody?.contactTestBitMask = enemyCategory
-        
-        let waitAction = SKAction.wait(forDuration: 1.0)
-        let removeAction = SKAction.removeFromParent()
-        laser?.run(SKAction.sequence([waitAction,removeAction]))
-    }
-    
+   
 }
