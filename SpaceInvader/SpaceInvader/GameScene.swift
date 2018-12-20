@@ -16,6 +16,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     var enemy:SKSpriteNode?
     var item:SKSpriteNode?
     var label:SKLabelNode?
+    var duration:TimeInterval = 1.0
     var fireRate:TimeInterval = 1.0
     var timeSinceFire:TimeInterval = 0
     var lastTime:TimeInterval = 0
@@ -37,7 +38,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     override func didMove(to view: SKView) {
         
         addLife()
-        
+    
         player = SKSpriteNode(imageNamed: "ship")
         player?.position = CGPoint(x: 25, y: -450 )
         self.addChild(player!)
@@ -53,8 +54,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         score = 0
         
         self.addChild(scoreLabel)
-        
-        gameTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(addAlien), userInfo: nil, repeats: true)
+        gameTimer = Timer.scheduledTimer(timeInterval: duration, target: self, selector: #selector(addAlien), userInfo: nil, repeats: true)
 
     }
     
@@ -106,6 +106,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         
     }
+    
     
     func addLife(){
         lifeArray = [SKSpriteNode]()

@@ -29,9 +29,10 @@ class GameOver: SKScene {
             let node = self.nodes(at: location)
         
         if node[0].name == "playAgain"{
-            let transition = SKTransition.crossFade(withDuration: 0.5)
-            let mainMen = MainMenu(size: self.size)
-            self.view!.presentScene(mainMen,transition:transition)
+            let gameScene:GameScene = GameScene(fileNamed: "GameScene")!
+            gameScene.scaleMode = .aspectFill
+            let transition:SKTransition = SKTransition.crossFade(withDuration: 1.0)
+            self.view?.presentScene(gameScene, transition: transition)
         }
         }
     }
