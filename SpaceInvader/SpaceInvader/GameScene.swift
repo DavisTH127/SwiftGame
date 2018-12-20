@@ -39,7 +39,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         addLife()
         
         player = SKSpriteNode(imageNamed: "ship")
-        player?.position = CGPoint(x: 25, y: -200 )
+        player?.position = CGPoint(x: 25, y: -450 )
         self.addChild(player!)
         
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
@@ -120,7 +120,24 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        //  fireLaser()
+       // for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+
+    }
+    func checkLaser(_ frameRate:TimeInterval) {
+        // add time to timer
+        timeSinceFire += frameRate
+        
+        // return if it hasn't been enough time to fire laser
+        if timeSinceFire < fireRate {
+            return
+        }
+        
+        //spawn laser
         fireLaser()
+        
+        // reset timer
+        timeSinceFire = 0
     }
     
     func fireLaser(){
@@ -158,6 +175,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         if (firstBody.categoryBitMask & photonCategory) != 0 && (secondBody.categoryBitMask & alienCategory) != 0 {
             lazerCollide(lazer: firstBody.node as! SKSpriteNode, enemy: secondBody.node as! SKSpriteNode)
         }
+       
     }
     
     func lazerCollide(lazer:SKSpriteNode, enemy: SKSpriteNode){
@@ -174,6 +192,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         score += 10
     }
+    
     
     
     func touchDown(atPoint pos : CGPoint) {
@@ -201,7 +220,8 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     }
     
     override func update(_ currentTime: TimeInterval) {
-    
+        checkLaser(currentTime - lastTime)
+        lastTime = currentTime
     }
    
 }
