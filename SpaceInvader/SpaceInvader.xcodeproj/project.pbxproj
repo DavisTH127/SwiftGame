@@ -20,6 +20,8 @@
 		720947F721BF40A9006D7D65 /* MainMenu.swift in Sources */ = {isa = PBXBuildFile; fileRef = 720947F621BF40A9006D7D65 /* MainMenu.swift */; };
 		720947FB21BF66DE006D7D65 /* Laser.sks in Resources */ = {isa = PBXBuildFile; fileRef = 720947FA21BF66DE006D7D65 /* Laser.sks */; };
 		72160F2621C2304A00EA2941 /* Explosion.sks in Resources */ = {isa = PBXBuildFile; fileRef = 72160F2521C2304A00EA2941 /* Explosion.sks */; };
+		72F441C921CB599400CA949C /* GameOver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 72F441C821CB599400CA949C /* GameOver.swift */; };
+		72F441CB21CB59DF00CA949C /* GameOver.sks in Resources */ = {isa = PBXBuildFile; fileRef = 72F441CA21CB59DF00CA949C /* GameOver.sks */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +61,8 @@
 		720947F621BF40A9006D7D65 /* MainMenu.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainMenu.swift; sourceTree = "<group>"; };
 		720947FA21BF66DE006D7D65 /* Laser.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Laser.sks; sourceTree = "<group>"; };
 		72160F2521C2304A00EA2941 /* Explosion.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = Explosion.sks; sourceTree = "<group>"; };
+		72F441C821CB599400CA949C /* GameOver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameOver.swift; sourceTree = "<group>"; };
+		72F441CA21CB59DF00CA949C /* GameOver.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameOver.sks; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -113,8 +117,10 @@
 				720947C221BE58C8006D7D65 /* GameScene.sks */,
 				72160F2521C2304A00EA2941 /* Explosion.sks */,
 				720947F421BF3F02006D7D65 /* MainMenu.sks */,
-				720947F621BF40A9006D7D65 /* MainMenu.swift */,
+				72F441CA21CB59DF00CA949C /* GameOver.sks */,
 				720947C621BE58C8006D7D65 /* GameScene.swift */,
+				720947F621BF40A9006D7D65 /* MainMenu.swift */,
+				72F441C821CB599400CA949C /* GameOver.swift */,
 				720947C821BE58C8006D7D65 /* GameViewController.swift */,
 				720947CA21BE58C8006D7D65 /* Main.storyboard */,
 				720947CD21BE58C9006D7D65 /* Assets.xcassets */,
@@ -248,6 +254,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				720947CC21BE58C8006D7D65 /* Main.storyboard in Resources */,
+				72F441CB21CB59DF00CA949C /* GameOver.sks in Resources */,
 				720947C321BE58C8006D7D65 /* GameScene.sks in Resources */,
 				720947CE21BE58C9006D7D65 /* Assets.xcassets in Resources */,
 				720947FB21BF66DE006D7D65 /* Laser.sks in Resources */,
@@ -281,6 +288,7 @@
 				720947C721BE58C8006D7D65 /* GameScene.swift in Sources */,
 				720947C921BE58C8006D7D65 /* GameViewController.swift in Sources */,
 				720947C121BE58C8006D7D65 /* AppDelegate.swift in Sources */,
+				72F441C921CB599400CA949C /* GameOver.swift in Sources */,
 				720947F721BF40A9006D7D65 /* MainMenu.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -27,7 +27,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         }
     }
     
-    var livesArray:[SKSpriteNode]!
+    var lifeArray:[SKSpriteNode]!
     
     let alienCategory:UInt32 = 0b1 << 1
     let photonCategory:UInt32 = 0b1 << 0
@@ -36,10 +36,10 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     
     override func didMove(to view: SKView) {
         
-        addLives()
+        addLife()
         
         player = SKSpriteNode(imageNamed: "ship")
-        player?.position = CGPoint(x: 250, y: 500 )
+        player?.position = CGPoint(x: 25, y: -200 )
         self.addChild(player!)
         
         self.physicsWorld.gravity = CGVector(dx: 0, dy: 0)
@@ -54,7 +54,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         self.addChild(scoreLabel)
         
-        gameTimer = Timer.scheduledTimer(timeInterval: 2, target: self, selector: #selector(addAlien), userInfo: nil, repeats: true)
+        gameTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(addAlien), userInfo: nil, repeats: true)
 
     }
     
@@ -84,6 +84,21 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
         actionArray.append(SKAction.move(to: CGPoint(x: position - 250, y: -750), duration: animationDuration))
         
+        actionArray.append(SKAction.run {
+            if self.lifeArray.count > 0 {
+                let lifeNode = self.lifeArray.first
+                lifeNode!.removeFromParent()
+                self.lifeArray.removeFirst()
+                
+                if self.lifeArray.count == 0 {
+                    let gameOver:GameOver = GameOver(fileNamed: "GameOver")!
+                    gameOver.scaleMode = .aspectFill
+                    gameOver.score = self.score
+                    let transition:SKTransition = SKTransition.crossFade(withDuration: 1.0)
+                    self.view?.presentScene(gameOver, transition: transition)
+                }
+            }
+        })
         
         actionArray.append(SKAction.removeFromParent())
         
@@ -92,8 +107,15 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
         
     }
     
-    func addLives(){
+    func addLife(){
+        lifeArray = [SKSpriteNode]()
         
+        for life in 1 ... 3 {
+            let lifeNode = SKSpriteNode(imageNamed: "spaceShip")
+            lifeNode.position = CGPoint(x: self.frame.size.width - CGFloat(4 - life) * lifeNode.size.width, y: self.frame.size.height - 60)
+            self.addChild(lifeNode)
+            lifeArray.append(lifeNode)
+        }
     }
     
     
@@ -102,7 +124,7 @@ class GameScene: SKScene,SKPhysicsContactDelegate {
     }
     
     func fireLaser(){
-        let lazer = SKSpriteNode(imageNamed: "laser")
+        let lazer = SKSpriteNode(imageNamed: "lazer")
         lazer.position = (player?.position)!
         lazer.position.y = (player?.zPosition)! - 400
         lazer.physicsBody = SKPhysicsBody(circleOfRadius:lazer.size.width/2)
